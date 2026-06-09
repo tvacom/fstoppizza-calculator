@@ -820,17 +820,21 @@ function renderSauce(sk, qty) {
   var sauce = SAUCES[sk];
   if (!sauce) return;
   document.getElementById('sauceTabs').innerHTML = '<button class="sauce-tab active">' + sauce.name + '</button>';
+  var multi = qty > 1;
+  function fmtAmt(v, unit) {
+    if      (unit === 'g')      return Math.round(v) + 'g';
+    else if (unit === 'tsp')    return parseFloat(v.toFixed(1)) + ' tsp';
+    else if (unit === 'cloves') return Math.ceil(v) + ' cloves';
+    else if (unit === 'leaves') return Math.ceil(v) + ' leaves';
+    else                        return parseFloat(v.toFixed(1)) + ' ' + unit;
+  }
   var rows = '';
   for (var i = 0; i < sauce.ingredients.length; i++) {
     var item = sauce.ingredients[i];
-    var total = item.pp * qty;
-    var display;
-    if      (item.unit === 'g')      display = Math.round(total) + 'g';
-    else if (item.unit === 'tsp')    display = parseFloat(total.toFixed(1)) + ' tsp';
-    else if (item.unit === 'cloves') display = Math.ceil(total) + ' cloves';
-    else if (item.unit === 'leaves') display = Math.ceil(total) + ' leaves';
-    else                             display = parseFloat(total.toFixed(1)) + ' ' + item.unit;
-    rows += '<tr><td>' + item.name + '</td><td>' + display + '</td></tr>';
+    var perDisp   = fmtAmt(item.pp, item.unit);
+    var totalDisp = fmtAmt(item.pp * qty, item.unit);
+    rows += '<tr><td>' + item.name + '</td><td>' + perDisp + '</td>' +
+            (multi ? '<td>' + totalDisp + '</td>' : '') + '</tr>';
   }
   var steps = '';
   for (var j = 0; j < sauce.steps.length; j++) {
@@ -843,8 +847,8 @@ function renderSauce(sk, qty) {
         '<div class="sauce-title">' + sauce.name + '</div>' +
       '</div>' +
       '<div class="sauce-desc">' + sauce.desc + '</div>' +
-      '<div class="sec-title" style="margin-bottom:.5rem">Ingredients for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
-      '<table><tr><th>Ingredient</th><th>Amount</th></tr>' + rows + '</table>' +
+      '<div class="sec-title" style="margin-bottom:.5rem">Ingredients' + (multi ? ' (per pizza & total for ' + qty + ')' : ' per pizza') + '</div>' +
+      '<table><tr><th>Ingredient</th><th>Per pizza</th>' + (multi ? '<th>Total</th>' : '') + '</tr>' + rows + '</table>' +
       '<div class="sec-title" style="margin:.85rem 0 .5rem">Method</div>' +
       steps +
       '<div class="note note-info" style="margin-top:10px"><strong>Pro tip:</strong> ' + sauce.tip + '</div>' +
@@ -901,10 +905,14 @@ function renderCheese(sk, qty, sizeIn) {
   if (!ch) return;
   var sizeRatio = Math.pow((sizeIn * 2.54) / (12 * 2.54), 2);
   function scaleG(ppg) { return Math.round(ppg * qty * sizeRatio); }
+  function perG(ppg)   { return Math.round(ppg * sizeRatio); }
+  var multi = qty > 1;
 
-  var primaryG = scaleG(ch.primary.ppg);
-  var totalG   = primaryG;
-  for (var i = 0; i < ch.secondary.length; i++) totalG += scaleG(ch.secondary[i].ppg);
+  var primaryG   = scaleG(ch.primary.ppg);
+  var primaryPer = perG(ch.primary.ppg);
+  var totalG     = primaryG;
+  var totalPer   = primaryPer;
+  for (var i = 0; i < ch.secondary.length; i++) { totalG += scaleG(ch.secondary[i].ppg); totalPer += perG(ch.secondary[i].ppg); }
 
   var primaryHtml =
     '<div style="background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;border:.5px solid var(--border);margin-bottom:10px">' +
@@ -914,8 +922,9 @@ function renderCheese(sk, qty, sizeIn) {
           '<div style="font-size:15px;font-weight:600;color:var(--text)">' + ch.primary.name + '</div>' +
         '</div>' +
         '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-          '<div style="font-size:22px;font-weight:700;color:var(--text)">' + primaryG + 'g</div>' +
-          '<div style="font-size:11px;color:var(--text3)">for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
+          '<div style="font-size:22px;font-weight:700;color:var(--text)">' + primaryPer + 'g</div>' +
+          '<div style="font-size:11px;color:var(--text3)">per pizza</div>' +
+          (multi ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + primaryG + 'g total for ' + qty + '</div>' : '') +
         '</div>' +
       '</div>' +
       '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + ch.primary.note + '</div>' +
@@ -923,8 +932,9 @@ function renderCheese(sk, qty, sizeIn) {
 
   var secHtml = '';
   for (var j = 0; j < ch.secondary.length; j++) {
-    var sec  = ch.secondary[j];
-    var secG = scaleG(sec.ppg);
+    var sec    = ch.secondary[j];
+    var secG   = scaleG(sec.ppg);
+    var secPer = perG(sec.ppg);
     secHtml +=
       '<div style="background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;border:.5px solid var(--border);margin-bottom:8px">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">' +
@@ -933,8 +943,9 @@ function renderCheese(sk, qty, sizeIn) {
             '<div style="font-size:14px;font-weight:600;color:var(--text)">' + sec.name + '</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-            '<div style="font-size:20px;font-weight:700;color:var(--text)">' + secG + 'g</div>' +
-            '<div style="font-size:11px;color:var(--text3)">for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
+            '<div style="font-size:20px;font-weight:700;color:var(--text)">' + secPer + 'g</div>' +
+            '<div style="font-size:11px;color:var(--text3)">per pizza</div>' +
+            (multi ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + secG + 'g total for ' + qty + '</div>' : '') +
           '</div>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + sec.note + '</div>' +
@@ -944,8 +955,11 @@ function renderCheese(sk, qty, sizeIn) {
   document.getElementById('cheeseContent').innerHTML =
     '<div class="note" style="margin-bottom:12px">' + ch.note + '</div>' +
     '<div style="background:var(--bg-info);border-radius:var(--radius);padding:.65rem 1rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--text-info)">Total cheese (all types)</div>' +
-      '<div style="font-size:18px;font-weight:700;color:var(--text-info)">' + totalG + 'g</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text-info)">All cheese combined</div>' +
+      '<div style="text-align:right">' +
+        '<div style="font-size:18px;font-weight:700;color:var(--text-info)">' + totalPer + 'g per pizza</div>' +
+        (multi ? '<div style="font-size:11px;color:var(--text-info);opacity:.85;margin-top:1px">' + totalG + 'g total for ' + qty + ' pizzas</div>' : '') +
+      '</div>' +
     '</div>' +
     primaryHtml +
     '<div class="sec-title" style="margin:.5rem 0">Additional cheeses</div>' +
