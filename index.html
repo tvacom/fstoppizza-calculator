@@ -252,12 +252,6 @@ tr.total td{font-weight:700}
   </div>
 
   <div class="sec">
-    <div class="sec-title">Build summary &mdash; per pizza &amp; batch</div>
-    <div class="sub">Dough, sauce, and cheese side by side: what one pizza needs, and the total for the whole batch.</div>
-    <div id="summaryContent"></div>
-  </div>
-
-  <div class="sec">
     <div class="sec-title">Pizza sauce recipe</div>
     <div class="sub">Auto-selected for your pizza style. Scales with number of pizzas.</div>
     <div class="sauce-tab-row" id="sauceTabs"></div>
@@ -767,31 +761,7 @@ function calc() {
   calcFerm();
   renderSauce(sk, qty);
   renderCheese(sk, qty, sizeIn);
-  renderSummary(qty, ballWeight, totalDough);
   renderBake(sk);
-}
-
-function renderSummary(qty, ballWeight, totalDough) {
-  var s = window._sauce  || { per:0, total:0 };
-  var c = window._cheese || { per:0, total:0 };
-  var multi  = qty > 1;
-  var perPie = ballWeight + s.per + c.per;
-  var totAll = totalDough + s.total + c.total;
-  function row(label, per, total, isTotal) {
-    return '<tr' + (isTotal ? ' class="total"' : '') + '><td>' + label + '</td>' +
-           '<td>' + per + 'g</td>' + (multi ? '<td>' + total + 'g</td>' : '') + '</tr>';
-  }
-  document.getElementById('summaryContent').innerHTML =
-    '<table>' +
-      '<tr><th>Component</th><th>Per pizza</th>' + (multi ? '<th>Total (&times;' + qty + ')</th>' : '') + '</tr>' +
-      row('Dough ball', ballWeight, totalDough, false) +
-      row('Sauce', s.per, s.total, false) +
-      row('Cheese (combined)', c.per, c.total, false) +
-      row('Topped pizza', perPie, totAll, true) +
-    '</table>' +
-    '<div class="note note-info" style="margin-top:8px">Each pizza &approx; <strong>' + ballWeight + 'g dough</strong> + <strong>' + s.per + 'g sauce</strong> + <strong>' + c.per + 'g cheese</strong>' +
-    (multi ? '. Whole batch of ' + qty + ' &approx; <strong>' + totAll + 'g</strong>.' : '.') +
-    ' Cheese uses the combined recommended amount (alternatives excluded); toppings not included.</div>';
 }
 
 function calcFerm() {
@@ -868,7 +838,8 @@ function renderSauce(sk, qty) {
     rows += '<tr><td>' + item.name + '</td><td>' + perDisp + '</td>' +
             (multi ? '<td>' + totalDisp + '</td>' : '') + '</tr>';
   }
-  window._sauce = { per: Math.round(saucePerG), total: Math.round(saucePerG * qty) };
+  var saucePer   = Math.round(saucePerG);
+  var sauceTotal = Math.round(saucePerG * qty);
   var steps = '';
   for (var j = 0; j < sauce.steps.length; j++) {
     steps += '<div class="sauce-step"><div class="sauce-num">' + (j+1) + '</div><div class="sauce-step-text">' + sauce.steps[j] + '</div></div>';
@@ -880,6 +851,13 @@ function renderSauce(sk, qty) {
         '<div class="sauce-title">' + sauce.name + '</div>' +
       '</div>' +
       '<div class="sauce-desc">' + sauce.desc + '</div>' +
+      '<div style="background:var(--bg-info);border-radius:var(--radius);padding:.65rem 1rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:13px;font-weight:600;color:var(--text-info)">Sauce per pizza</div>' +
+        '<div style="text-align:right">' +
+          '<div style="font-size:18px;font-weight:700;color:var(--text-info)">' + saucePer + 'g per pizza</div>' +
+          (multi ? '<div style="font-size:11px;color:var(--text-info);opacity:.85;margin-top:1px">' + sauceTotal + 'g total for ' + qty + ' pizzas</div>' : '') +
+        '</div>' +
+      '</div>' +
       '<div class="sec-title" style="margin-bottom:.5rem">Ingredients' + (multi ? ' (per pizza & total for ' + qty + ')' : ' per pizza') + '</div>' +
       '<table><tr><th>Ingredient</th><th>Per pizza</th>' + (multi ? '<th>Total</th>' : '') + '</tr>' + rows + '</table>' +
       '<div class="sec-title" style="margin:.85rem 0 .5rem">Method</div>' +
@@ -952,7 +930,6 @@ function renderCheese(sk, qty, sizeIn) {
     totalG   += scaleG(ch.secondary[i].ppg);
     totalPer += perG(ch.secondary[i].ppg);
   }
-  window._cheese = { per: totalPer, total: totalG };
 
   var primaryHtml =
     '<div style="background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;border:.5px solid var(--border);margin-bottom:10px">' +
