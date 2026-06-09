@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FStopPizza Calculator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FStopPizza">
+<meta name="description" content="FStopPizza dough &amp; pizza calculator">
+<style>
+:root{--bg:#fff;--bg2:#f5f5f4;--bg3:#eeece8;--bg-info:#e6f1fb;--bg-warn:#faeeda;--bg-success:#eaf3de;--bg-danger:#fcebeb;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--text-info:#0c447c;--text-warn:#633806;--text-success:#27500a;--text-danger:#791f1f;--border:rgba(0,0,0,.12);--border2:rgba(0,0,0,.22);--radius:8px;--radius-lg:12px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;--mono:'SF Mono','Fira Code',monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#252522;--bg3:#2e2e2b;--bg-info:#042c53;--bg-warn:#412402;--bg-success:#173404;--bg-danger:#501313;--text:#f0ede8;--text2:#b4b2a9;--text3:#888780;--text-info:#85b7eb;--text-warn:#fac775;--text-success:#c0dd97;--text-danger:#f09595;--border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.18)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;padding:1rem}
+.app{max-width:720px;margin:0 auto;padding-bottom:3rem}
+.hdr{display:flex;align-items:center;gap:12px;padding:1.5rem 0 1.25rem}
+.hdr h1{font-size:22px;font-weight:600;color:var(--text)}
+.hdr p{font-size:13px;color:var(--text2);margin-top:2px}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;background:var(--bg2);border-radius:var(--radius-lg);padding:4px;border:.5px solid var(--border)}
+.tab{flex:1;padding:8px;font-size:13px;font-weight:500;border-radius:var(--radius);border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font)}
+.tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.sec{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.85rem}
+.sec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.85rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+@media(max-width:520px){.g2,.g3{grid-template-columns:1fr}}
+.f label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500}
+.f input,.f select{width:100%;font-size:14px;padding:8px 10px;border-radius:var(--radius);border:.5px solid var(--border2);background:var(--bg2);color:var(--text);outline:none;font-family:var(--font);-webkit-appearance:none;appearance:none}
+.f input:focus,.f select:focus{border-color:#378add;box-shadow:0 0 0 3px rgba(55,138,221,.15)}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:var(--bg3);border-radius:3px;border:.5px solid var(--border);cursor:pointer;margin-top:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#378add;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#378add;border:none}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;text-align:center}
+.metric .val{font-size:20px;font-weight:600;color:var(--text)}
+.metric .lbl{font-size:11px;color:var(--text3);margin-top:2px}
+table{width:100%;font-size:14px;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding:4px 8px;border-bottom:.5px solid var(--border)}
+td{padding:8px;border-bottom:.5px solid var(--border);color:var(--text)}
+td:last-child{text-align:right;font-weight:600;font-family:var(--mono);font-size:13px}
+tr:last-child td{border-bottom:none}
+tr.total{background:var(--bg2)}
+tr.total td{font-weight:700}
+.btn{width:100%;padding:10px;font-size:14px;font-weight:600;border-radius:var(--radius);cursor:pointer;border:.5px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font)}
+.btn:hover{background:var(--bg2)}
+.btn-p{background:var(--bg-info);color:var(--text-info);border-color:rgba(55,138,221,.3)}
+.btn-sm{width:auto;font-size:12px;padding:6px 12px}
+.btn-danger{color:var(--text-danger);border-color:rgba(226,75,74,.3)}
+.note{font-size:13px;color:var(--text2);background:var(--bg2);padding:8px 12px;margin-top:8px;border-left:3px solid var(--border2)}
+.note-info{color:var(--text-info);background:var(--bg-info);border-left-color:#378add}
+.note-warn{color:var(--text-warn);background:var(--bg-warn);border-left-color:#ef9f27}
+.note-success{color:var(--text-success);background:var(--bg-success);border-left-color:#639922}
+.note-danger{color:var(--text-danger);background:var(--bg-danger);border-left-color:#e24b4a}
+.ferm-bar-wrap{background:var(--bg3);border-radius:4px;height:10px;overflow:hidden;margin:8px 0 4px;border:.5px solid var(--border)}
+.ferm-bar{height:10px;border-radius:4px;transition:width .5s,background .5s}
+.log-entry{border-bottom:.5px solid var(--border);padding:12px 0;font-size:13px}
+.log-entry:last-child{border-bottom:none}
+.log-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;color:var(--text2)}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:14px}
+.empty i{font-size:40px;display:block;margin-bottom:.75rem}
+.divider{border:none;border-top:.5px solid var(--border);margin:14px 0}
+.sub{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.range-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.range-lbl{font-size:12px;color:var(--text2);font-weight:500;white-space:nowrap;min-width:90px}
+.range-val{font-size:14px;font-weight:600;color:var(--text);min-width:42px;text-align:right}
+.pref-section{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;margin-top:10px;border:.5px solid var(--border)}
+.sauce-card{background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;border:.5px solid var(--border)}
+.sauce-tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.sauce-tab{padding:5px 14px;font-size:12px;font-weight:600;border-radius:20px;border:.5px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:var(--font)}
+.sauce-tab.active{background:var(--bg-info);color:var(--text-info);border-color:rgba(55,138,221,.3)}
+.sauce-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px}
+.sauce-desc{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.sauce-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.sauce-num{min-width:22px;height:22px;border-radius:50%;background:var(--bg-info);color:var(--text-info);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sauce-step-text{font-size:13px;color:var(--text2);line-height:1.5}
+.footer{text-align:center;padding:2rem 0 1rem;font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr"><img src="icons/icon-192.png" alt="FStopPizza" style="width:64px;height:64px;object-fit:contain;border-radius:12px"><div><h1>FStopPizza Calculator</h1><p>Baker's percentages &middot; Pre-ferments &middot; Fermentation estimator &middot; Batch log</p></div></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('calc')"><i class="ti ti-calculator"></i> Calculator</button>
+  <button class="tab" onclick="showTab('batch')"><i class="ti ti-history"></i> Batch Log</button>
+</div>
+
+<div id="tab-calc">
+  <div class="sec">
+    <div class="sec-title">Pizza settings</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="f">
+        <label>Pizza style</label>
+        <select id="style" onchange="onStyleChange()">
+          <option value="neapolitan">Neapolitan</option>
+          <option value="ny">New York</option>
+          <option value="chicago_deep">Chicago Deep Dish</option>
+          <option value="roman">Roman (al teglio)</option>
+          <option value="sicilian">Sicilian</option>
+          <option value="detroit">Detroit</option>
+          <option value="apizza">New Haven Apizza (Coal-fired)</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>Flour type</label>
+        <select id="flour_type" onchange="onFlourChange()">
+          <option value="00">Tipo 00 (fine milled)</option>
+          <option value="bread">Bread flour (~13% protein)</option>
+          <option value="ap">All-purpose (~11.5%)</option>
+          <option value="whole_wheat">Whole wheat</option>
+          <option value="semolina">Semolina blend (50/50)</option>
+        </select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="f">
+        <label>Number of pizzas</label>
+        <input type="number" id="qty" value="2" min="1" max="20" oninput="calc()">
+      </div>
+      <div class="f">
+        <label>Diameter (inches)</label>
+        <input type="number" id="size" value="12" min="6" max="24" step="0.5" oninput="calc()">
+      </div>
+      <div class="f">
+        <label>Crust thickness</label>
+        <select id="thick" onchange="calc()">
+          <option value="thin">Thin</option>
+          <option value="medium" selected>Medium</option>
+          <option value="thick">Thick</option>
+        </select>
+      </div>
+    </div>
+    <div id="flourNote" class="note" style="display:none"></div>
+    <div id="bakeCard" style="margin-top:10px"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Yeast &amp; leavening</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="f">
+        <label>Yeast type</label>
+        <select id="yeast" onchange="calc()">
+          <option value="active_dry">Active dry</option>
+          <option value="instant">Instant / RapidRise</option>
+          <option value="fresh">Fresh / cake</option>
+          <option value="sourdough">Sourdough starter</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>Pre-ferment</label>
+        <select id="preferment" onchange="onPrefChange()">
+          <option value="none">None (direct dough)</option>
+          <option value="poolish">Poolish (50% flour)</option>
+          <option value="biga">Biga (40% flour, stiff)</option>
+        </select>
+      </div>
+    </div>
+    <div id="prefDetails" style="display:none">
+      <div class="sub" id="prefDesc"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Hydration, salt &amp; enrichments</div>
+    <div style="margin-bottom:12px">
+      <div class="range-row">
+        <span class="range-lbl">Hydration</span>
+        <input type="range" id="hydration" min="55" max="85" value="63" step="1" oninput="document.getElementById('hydLabel').textContent=this.value+'%';calc()">
+        <span class="range-val" id="hydLabel">63%</span>
+      </div>
+      <div class="range-row">
+        <span class="range-lbl">Salt</span>
+        <input type="range" id="salt" min="1.5" max="3.5" value="2.5" step="0.1" oninput="document.getElementById('saltLabel').textContent=parseFloat(this.value).toFixed(1)+'%';calc()">
+        <span class="range-val" id="saltLabel">2.5%</span>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="f" id="oilField">
+        <label>Oil %</label>
+        <select id="oil" onchange="calc()">
+          <option value="0">None</option>
+          <option value="2">2% (light)</option>
+          <option value="3" selected>3% (standard)</option>
+          <option value="5">5% (enriched)</option>
+        </select>
+      </div>
+      <div class="f" id="sugarField">
+        <label>Sugar %</label>
+        <select id="sugar" onchange="calc()">
+          <option value="0">None</option>
+          <option value="1">1% (slight browning)</option>
+          <option value="2">2% (standard NY)</option>
+          <option value="3" selected>3% (sweeter crust)</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>Fermentation plan</label>
+        <select id="ferm" onchange="calcFerm()">
+          <option value="same_day">Same day (2-4 hr)</option>
+          <option value="overnight">Overnight (12-18 hr)</option>
+          <option value="cold">Cold proof (24-72 hr)</option>
+        </select>
+      </div>
+    </div>
+    <div id="neapNote" class="note note-info" style="display:none;margin-top:10px">
+      <i class="ti ti-info-circle"></i> Authentic Neapolitan: flour, water, salt, and yeast only.
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Recipe results</div>
+    <div class="g4" id="metrics" style="margin-bottom:1rem"></div>
+    <table id="recipeTable"></table>
+    <div id="prefTable" style="display:none;margin-top:14px">
+      <hr class="divider">
+      <div class="pref-section">
+        <div class="sec-title" id="prefTableTitle"></div>
+        <div class="sub" style="margin-bottom:8px">Mix the night before (8-16 hrs ahead), ferment at room temp, then refrigerate.</div>
+        <table id="prefRecipeTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Fermentation time estimator</div>
+    <div class="sub">Enter temperatures to get a live fermentation estimate.</div>
+    <div class="g3" style="margin:10px 0 12px">
+      <div class="f">
+        <label>Water temp (F)</label>
+        <input type="number" id="waterTemp" placeholder="75" min="50" max="110" oninput="calcFerm()">
+      </div>
+      <div class="f">
+        <label>Air / room temp (F)</label>
+        <input type="number" id="airTemp" placeholder="68" min="32" max="105" oninput="calcFerm()">
+      </div>
+      <div class="f">
+        <label>Flour temp (F)</label>
+        <input type="number" id="flourTemp" placeholder="65" min="40" max="90" oninput="calcFerm()">
+      </div>
+    </div>
+    <div id="fermResult"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Pizza sauce recipe</div>
+    <div class="sub">Auto-selected for your pizza style. Scales with number of pizzas.</div>
+    <div class="sauce-tab-row" id="sauceTabs"></div>
+    <div id="sauceContent"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Cheese guide</div>
+    <div class="sub">Recommended cheeses and amounts scaled by number of pizzas and diameter.</div>
+    <div id="cheeseContent"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Log this batch</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="f">
+        <label>Flour brand / source</label>
+        <input type="text" id="flourBrand" placeholder="e.g. Caputo 00, King Arthur">
+      </div>
+      <div class="f">
+        <label>Batch notes</label>
+        <input type="text" id="notes" placeholder="e.g. extra crispy, longer bake">
+      </div>
+    </div>
+    <button class="btn btn-p" onclick="saveBatch()"><i class="ti ti-device-floppy"></i> Save batch to log</button>
+  </div>
+</div>
+
+<div id="tab-batch" style="display:none">
+  <div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div class="sec-title" style="margin-bottom:0">Batch history</div>
+      <button class="btn btn-sm btn-danger" onclick="clearLog()"><i class="ti ti-trash"></i> Clear all</button>
+    </div>
+    <div id="logList"><div class="empty"><i class="ti ti-pizza-off"></i>No batches saved yet.</div></div>
+  </div>
+</div>
+
+<div class="footer">FStopPizza Calculator &mdash; All data saved locally in your browser</div>
+</div>
+<script>
+var STYLES = {
+  neapolitan:  { bw:250, hyd:62, salt:2.5, oil:0, sugar:0, butter:0, cornmeal:0, hasOil:false, hasSugar:false },
+  ny:          { bw:300, hyd:63, salt:2.5, oil:3, sugar:3, butter:0, cornmeal:0, hasOil:true,  hasSugar:true  },
+  chicago_deep:{ bw:550, hyd:58, salt:2.0, oil:2, sugar:2, butter:6, cornmeal:5, hasOil:true,  hasSugar:true  },
+  roman:       { bw:550, hyd:75, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
+  sicilian:    { bw:500, hyd:70, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
+  detroit:     { bw:450, hyd:70, salt:2.5, oil:5, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
+  apizza:      { bw:280, hyd:65, salt:2.5, oil:2, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false }
+};
+
+var THICK = { thin:0.85, medium:1.0, thick:1.2 };
+
+var YEAST = {
+  active_dry: { name:'Active dry',          rate:0.4,  unit:'g' },
+  instant:    { name:'Instant / RapidRise', rate:0.3,  unit:'g' },
+  fresh:      { name:'Fresh / cake',        rate:1.0,  unit:'g' },
+  sourdough:  { name:'Sourdough starter',   rate:20,   unit:'g (starter)' }
+};
+
+var FLOUR_NOTES = {
+  '00':        'Best for Neapolitan - very fine, low protein, silky dough. Rest 20 min after mixing.',
+  bread:       'High protein builds strong gluten. Great for NY-style and New Haven apizza. King Arthur Bread Flour (13%+) is ideal.',
+  ap:          'Versatile all-rounder. Good for most styles.',
+  whole_wheat: 'Nutty flavor, denser crumb. Increase hydration +5-10%. Best blended with bread flour.',
+  semolina:    '50% semolina / 50% AP or 00. Golden color, slight sweetness, crisp bottom.'
+};
+
+var PREF_DESC = {
+  poolish: 'Poolish is a wet pre-ferment (100% hydration) made the night before. Develops complex flavor and improves extensibility. Uses 50% of total flour.',
+  biga:    'Biga is a stiff Italian pre-ferment (~55% hydration). Builds chewy, open-crumb structure with mild tang. Uses 40% of total flour.'
+};
+
+var SAUCES = {
+  neapolitan: {
+    name: 'San Marzano Crushed',
+    color: '#c0392b',
+    desc: 'No-cook sauce - true Neapolitan style uses raw, hand-crushed San Marzano tomatoes. The oven does all the cooking. Simple, bright, and authentic.',
+    ingredients: [
+      { name:'San Marzano DOP tomatoes (whole, canned)', pp:120, unit:'g' },
+      { name:'Fine sea salt', pp:2, unit:'g' },
+      { name:'Fresh basil leaves', pp:2, unit:'leaves' },
+      { name:'Extra virgin olive oil (finish)', pp:5, unit:'g' }
+    ],
+    steps: [
+      'Open canned San Marzanos and drain excess liquid.',
+      'Crush tomatoes by hand into a bowl - do not blend. Chunky is correct.',
+      'Add salt and mix gently. Do not cook.',
+      'Spread a thin, even layer on stretched dough. Less is more.',
+      'Add fresh basil and olive oil drizzle after the pizza comes out of the oven.'
+    ],
+    tip: 'Never cook Neapolitan sauce. Heat destroys the fresh brightness. Use DOP-certified San Marzanos.'
+  },
+  ny: {
+    name: 'Classic NY Cooked Tomato',
+    color: '#e74c3c',
+    desc: 'Slow-cooked, deeply flavored sauce with oregano and garlic. Slightly sweet, thick enough to hold toppings without sogging the crust.',
+    ingredients: [
+      { name:'Crushed tomatoes (canned)', pp:100, unit:'g' },
+      { name:'Tomato paste', pp:15, unit:'g' },
+      { name:'Olive oil', pp:8, unit:'g' },
+      { name:'Garlic cloves (minced)', pp:1, unit:'cloves' },
+      { name:'Dried oregano', pp:0.5, unit:'tsp' },
+      { name:'Dried basil', pp:0.3, unit:'tsp' },
+      { name:'Sugar', pp:3, unit:'g' },
+      { name:'Salt', pp:2, unit:'g' },
+      { name:'Black pepper', pp:0.5, unit:'g' },
+      { name:'Red pepper flakes (optional)', pp:0.2, unit:'tsp' }
+    ],
+    steps: [
+      'Heat olive oil over medium. Saute minced garlic 1-2 min until fragrant, not browned.',
+      'Add crushed tomatoes and tomato paste. Stir to combine.',
+      'Add oregano, basil, sugar, salt, pepper, and red pepper flakes.',
+      'Simmer uncovered on low 20-30 min, stirring occasionally, until thickened.',
+      'Cool completely before spreading on dough.',
+      'Spread in a circular motion with a ladle, leaving a half-inch border.'
+    ],
+    tip: 'Make sauce 1-2 days ahead - the flavor deepens overnight. Freeze extra in portions.'
+  },
+  chicago_deep: {
+    name: 'Chicago Deep Dish Crushed Tomato',
+    color: '#c0392b',
+    desc: 'Chicago deep dish sauce is chunky, barely cooked, and goes ON TOP of the cheese. Needs to be bright and fresh to cut through the rich butter crust and mozzarella.',
+    ingredients: [
+      { name:'Whole peeled tomatoes (canned, hand-crushed)', pp:180, unit:'g' },
+      { name:'Olive oil', pp:10, unit:'g' },
+      { name:'Garlic cloves (minced)', pp:1.5, unit:'cloves' },
+      { name:'Dried oregano', pp:0.6, unit:'tsp' },
+      { name:'Fresh basil', pp:3, unit:'leaves' },
+      { name:'Salt', pp:2, unit:'g' },
+      { name:'Sugar', pp:3, unit:'g' },
+      { name:'Red pepper flakes (optional)', pp:0.3, unit:'tsp' }
+    ],
+    steps: [
+      'Drain canned whole tomatoes and crush by hand - keep chunky.',
+      'Mix in olive oil, garlic, oregano, salt, sugar, and pepper flakes.',
+      'Do not cook - this is a fresh-applied sauce.',
+      'Tear in fresh basil and fold in gently.',
+      'Build pizza: press dough into buttered pan, add cheese and toppings, then spread sauce generously on top as the final layer.',
+      'Bake at 425F for 25-35 min until crust is golden and sauce is bubbling.'
+    ],
+    tip: 'Chicago deep dish is built in reverse: crust, then cheese, then toppings, then sauce on top. The sauce protects the cheese from burning during the long bake.'
+  },
+  roman: {
+    name: 'Roman Pomodoro',
+    color: '#e67e22',
+    desc: 'Light and aromatic. Roman al teglio uses a thinner sauce that wont weigh down the airy, focaccia-like crust. Finished with quality olive oil.',
+    ingredients: [
+      { name:'Whole peeled tomatoes (canned)', pp:130, unit:'g' },
+      { name:'Extra virgin olive oil', pp:12, unit:'g' },
+      { name:'Garlic clove (whole, smashed)', pp:0.5, unit:'cloves' },
+      { name:'Fresh basil', pp:3, unit:'leaves' },
+      { name:'Salt', pp:2, unit:'g' },
+      { name:'Sugar (pinch)', pp:1, unit:'g' }
+    ],
+    steps: [
+      'Warm olive oil with smashed garlic over low heat 2 min. Remove garlic.',
+      'Crush tomatoes into the pan by hand. Add salt and sugar.',
+      'Cook on medium-low 15 min until slightly reduced but still loose.',
+      'Tear in fresh basil, stir, remove from heat.',
+      'Cool before using. Spread thinly.',
+      'Finish baked pizza with a second drizzle of quality olive oil.'
+    ],
+    tip: 'Roman pizza is baked in rectangular trays. Spread sauce edge to edge - the crust is meant to be fully topped.'
+  },
+  sicilian: {
+    name: 'Sicilian Sunday Gravy',
+    color: '#8e44ad',
+    desc: 'Rich, robust, and deeply cooked. Thick and flavorful to stand up to the dense crust and generous toppings.',
+    ingredients: [
+      { name:'Crushed tomatoes (canned)', pp:150, unit:'g' },
+      { name:'Tomato paste', pp:20, unit:'g' },
+      { name:'Olive oil', pp:10, unit:'g' },
+      { name:'Garlic cloves (minced)', pp:1.5, unit:'cloves' },
+      { name:'Yellow onion (finely diced)', pp:20, unit:'g' },
+      { name:'Dried oregano', pp:0.5, unit:'tsp' },
+      { name:'Fresh basil', pp:3, unit:'leaves' },
+      { name:'Sugar', pp:4, unit:'g' },
+      { name:'Salt', pp:2.5, unit:'g' },
+      { name:'Calabrian chili (optional)', pp:0.5, unit:'tsp' }
+    ],
+    steps: [
+      'Heat olive oil over medium. Cook onion 8-10 min until soft and golden.',
+      'Add garlic, cook 1 min. Add tomato paste, cook 2 min stirring constantly.',
+      'Add crushed tomatoes, oregano, sugar, salt, and chili if using.',
+      'Simmer 30-40 min on low until very thick. Stir frequently.',
+      'Tear in fresh basil in the last 5 min.',
+      'Cool completely. Spread generously.'
+    ],
+    tip: 'Apply a second thin layer of sauce over the cheese for a classic Brooklyn-Sicilian red top look.'
+  },
+  detroit: {
+    name: 'Detroit Red Top Sauce',
+    color: '#d35400',
+    desc: 'Detroit pizza sauce goes ON TOP of the cheese after baking, in racing stripes. Bold, chunky, and slightly sweet.',
+    ingredients: [
+      { name:'Whole peeled tomatoes (hand-crushed)', pp:140, unit:'g' },
+      { name:'Tomato paste', pp:18, unit:'g' },
+      { name:'Olive oil', pp:8, unit:'g' },
+      { name:'Garlic cloves (minced)', pp:1.5, unit:'cloves' },
+      { name:'Dried oregano', pp:0.6, unit:'tsp' },
+      { name:'Fennel seed', pp:0.3, unit:'tsp' },
+      { name:'Sugar', pp:5, unit:'g' },
+      { name:'Salt', pp:2, unit:'g' },
+      { name:'Fresh basil (finish)', pp:2, unit:'leaves' }
+    ],
+    steps: [
+      'Heat olive oil over medium. Add garlic and fennel seed, cook 1 min.',
+      'Add tomato paste, stir and cook 2 min until it darkens.',
+      'Crush tomatoes into the pan by hand. Add oregano, sugar, and salt.',
+      'Simmer 25-35 min until thick and jammy.',
+      'Cool completely. Tear in fresh basil.',
+      'Ladle over the fully baked pizza in 2-3 parallel stripes across the cheese.'
+    ],
+    tip: 'The red top is Detroits signature. Apply after baking. The contrast of crispy cheese edges and bright sauce on top is the whole point.'
+  },
+  apizza: {
+    name: 'New Haven Tomato Sauce (Gravy)',
+    color: '#922b21',
+    desc: 'New Haven apizza uses a very simple, thin, slightly chunky tomato sauce. Frank Pepe original white clam has no sauce at all. The tomato pie uses sauce without mozzarella. Simple is the rule.',
+    ingredients: [
+      { name:'Crushed or ground tomatoes (canned)', pp:90, unit:'g' },
+      { name:'Olive oil', pp:8, unit:'g' },
+      { name:'Garlic cloves (minced)', pp:1, unit:'cloves' },
+      { name:'Dried oregano', pp:0.4, unit:'tsp' },
+      { name:'Salt', pp:1.5, unit:'g' },
+      { name:'Red pepper flakes', pp:0.2, unit:'tsp' }
+    ],
+    steps: [
+      'Combine all ingredients in a bowl. Do not cook - this is a raw sauce.',
+      'Stir well and let sit 15-20 min for flavors to meld.',
+      'Apply very thinly to stretched dough - New Haven sauce is a light coating, not a thick layer.',
+      'For a tomato pie (no mozzarella), apply sauce and bake - grated pecorino is the only cheese.',
+      'For white clam pie: no sauce, olive oil base, fresh or canned chopped clams, garlic, oregano, pecorino.'
+    ],
+    tip: 'Less sauce is more in New Haven. The char and dough are the stars. Frank Pepe original uses crushed tomatoes with just salt, oil, and oregano - nothing else.'
+  }
+};
+
+var CHEESES = {
+  neapolitan: {
+    note: 'Neapolitan cheese is applied sparingly. Less is more - the goal is balance between dough, sauce, and cheese.',
+    primary: { name:'Fresh Fior di Latte (mozzarella)', ppg:80, note:'Slice 5mm thick, tear by hand. Drain on paper towel 30 min before use to remove excess moisture.' },
+    secondary: [
+      { name:'Parmigiano Reggiano (finish)', ppg:10, note:'Finely grated, added after baking.' },
+      { name:'Fresh Buffalo Mozzarella (upgrade)', ppg:80, note:'Higher moisture - drain well. Use instead of Fior di Latte for premium pies.' }
+    ],
+    tip: 'Never use shredded low-moisture mozzarella on Neapolitan. The high heat (800-900F) requires fresh cheese that melts quickly without oiling out.'
+  },
+  ny: {
+    note: 'NY pizza uses low-moisture whole-milk mozzarella as the workhorse. It browns beautifully and stretches on the fold.',
+    primary: { name:'Low-moisture whole-milk mozzarella', ppg:140, note:'Shred fresh from the block. Pre-shredded has anti-caking agents that prevent proper melt.' },
+    secondary: [
+      { name:'Pecorino Romano (finish)', ppg:15, note:'Finely grated over the top before or after baking.' },
+      { name:'Provolone (blend option)', ppg:40, note:'Mix 25% provolone with 75% mozzarella for extra sharpness and better browning.' }
+    ],
+    tip: 'Shred your own whole-milk mozzarella from a block. Let it sit uncovered in the fridge 1 hour before use to dry slightly - this prevents a watery pizza.'
+  },
+  chicago_deep: {
+    note: 'Chicago deep dish uses a massive amount of cheese. Sliced mozzarella goes in first, directly on the dough, before toppings and sauce.',
+    primary: { name:'Low-moisture whole-milk mozzarella (sliced)', ppg:220, note:'Slice 6-8mm thick. Layer directly on raw dough wall to wall before any toppings. This is the foundation of the pie.' },
+    secondary: [
+      { name:'Parmigiano Reggiano', ppg:30, note:'Grated between the cheese and sauce layers.' },
+      { name:'Romano (sharp finish)', ppg:20, note:'Sprinkle over sauce on top before baking.' }
+    ],
+    tip: 'Chicago deep dish order: dough, sliced mozzarella, toppings, Parm, then sauce on top. Cheese goes in cold and raw - the long bake does all the work.'
+  },
+  roman: {
+    note: 'Roman al teglio uses cheese moderately. Applied after baking or in the last few minutes to prevent overcooking.',
+    primary: { name:'Fior di Latte (low-moisture)', ppg:90, note:'Torn or shredded. Add in the last 3-4 minutes of baking to prevent rubbery texture.' },
+    secondary: [
+      { name:'Pecorino Romano', ppg:15, note:'Grated finish after baking.' },
+      { name:'Burrata (white pizza)', ppg:80, note:'Torn and placed immediately after baking for a creamy finish.' }
+    ],
+    tip: 'Add cheese late in the bake or after. The long tray bake at lower temps will overcook cheese added at the start.'
+  },
+  sicilian: {
+    note: 'Sicilian pizza uses a generous cheese layer. Traditional Brooklyn-Sicilian often blends mozzarella with a sharp aged cheese.',
+    primary: { name:'Low-moisture whole-milk mozzarella', ppg:150, note:'Shredded. Cover the dough edge to edge - Sicilian is generously topped.' },
+    secondary: [
+      { name:'Aged Pecorino or Romano', ppg:25, note:'Grated and mixed with the mozzarella before applying.' },
+      { name:'Caciocavallo (authentic)', ppg:60, note:'Sliced or shredded. Traditional Sicilian cheese with a mild, buttery tang.' }
+    ],
+    tip: 'For the classic red top look, apply a second layer of thin sauce over the cheese before baking.'
+  },
+  detroit: {
+    note: 'Detroit pizza is defined by its cheese. Brick cheese is pushed all the way to the edges - the caramelized frico crust is the signature feature.',
+    primary: { name:'Wisconsin brick cheese', ppg:170, note:'Shredded or diced. Push to the very edges and corners of the pan. The cheese touching the pan caramelizes into the iconic crispy frico crust.' },
+    secondary: [
+      { name:'Low-moisture mozzarella (blend)', ppg:60, note:'Mix 60% brick / 40% mozzarella if brick cheese is hard to find.' },
+      { name:'Muenster (substitute)', ppg:170, note:'Best substitute for brick cheese. Same melt profile and mild flavor.' }
+    ],
+    tip: 'No brick cheese? Use Muenster or mild cheddar/mozzarella mix. Push cheese fully to pan edges. The frico crust only comes from cheese directly touching the oiled pan.'
+  },
+  apizza: {
+    note: 'New Haven apizza uses cheese sparingly. Mozzarella is optional - the classic tomato pie has no mozzarella at all, just sauce and grated pecorino.',
+    primary: { name:'Low-moisture mozzarella (shredded)', ppg:90, note:'Applied in sparse, uneven clumps - not wall to wall. The exposed sauce and dough chars directly under the coal fire. Gaps are intentional.' },
+    secondary: [
+      { name:'Pecorino Romano (grated)', ppg:20, note:'The essential New Haven cheese. Applied over sauce before baking on every pie, with or without mozzarella.' },
+      { name:'Fresh clams - chopped (white clam pie)', ppg:60, note:'For the iconic white clam pie: no sauce, no mozzarella. Clams, olive oil, garlic, oregano, and Pecorino only. Use fresh littleneck clams when possible.' }
+    ],
+    tip: 'For an authentic tomato pie (Frank Pepe style): sauce and grated Pecorino Romano only. No mozzarella. The coal fire chars the exposed sauce into something extraordinary.'
+  }
+};
+
+var BAKE = {
+  neapolitan: {
+    temps: [
+      { method:'Wood-fired oven',           tempF:850, tempC:454, timeMin:1,  timeMax:2,  unit:'minutes', note:'The gold standard. Floor temp 700-750F. Rotate once at 30 sec.' },
+      { method:'Home oven + baking steel',  tempF:550, tempC:288, timeMin:5,  timeMax:7,  unit:'minutes', note:'Preheat steel on top rack 1 hour. Broil last 60-90 sec for leopard char.' },
+      { method:'Home oven + stone',         tempF:550, tempC:288, timeMin:6,  timeMax:8,  unit:'minutes', note:'Preheat stone 1 hour. Steel is preferred - conducts heat better.' },
+      { method:'Ooni / Roccbox',            tempF:900, tempC:482, timeMin:1,  timeMax:2,  unit:'minutes', note:'Rotate every 20-30 sec. Watch for burn on cornicione.' }
+    ],
+    tip: 'Neapolitan must cook fast and hot. A slow bake ruins the texture. If your oven maxes at 500F, use a steel and finish under the broiler.'
+  },
+  ny: {
+    temps: [
+      { method:'Home oven + baking steel',   tempF:525, tempC:274, timeMin:10, timeMax:14, unit:'minutes', note:'Best home result. Preheat 45-60 min. Launch from a peel directly onto the steel.' },
+      { method:'Home oven + stone',          tempF:500, tempC:260, timeMin:12, timeMax:16, unit:'minutes', note:'Preheat stone 1 hour on lowest rack. Rotate halfway through.' },
+      { method:'Deck oven (pro)',            tempF:550, tempC:288, timeMin:8,  timeMax:10, unit:'minutes', note:'Commercial standard. Even top and bottom heat. Rotate once at 4 min.' },
+      { method:'Sheet pan (no steel)',       tempF:475, tempC:246, timeMin:14, timeMax:18, unit:'minutes', note:'Least crispy but works. Use a dark pan on lowest rack.' }
+    ],
+    tip: 'NY style should hold a fold without cracking. If the bottom is pale and soft, your oven or steel was not hot enough. Preheat longer.'
+  },
+  chicago_deep: {
+    temps: [
+      { method:'Home oven (standard)',  tempF:425, tempC:218, timeMin:25, timeMax:35, unit:'minutes', note:'Lowest rack. Cover with foil first 15 min to prevent sauce burning, then uncover.' },
+      { method:'Home oven (dark pan)',  tempF:400, tempC:204, timeMin:30, timeMax:40, unit:'minutes', note:'Dark pans absorb more heat - lower temp slightly. Check crust color at 25 min.' },
+      { method:'Deck oven (pro)',       tempF:450, tempC:232, timeMin:20, timeMax:28, unit:'minutes', note:'More even heat. Still use foil cover for first half of bake.' }
+    ],
+    tip: 'Done when crust is deep golden brown on sides and sauce bubbles vigorously. Peek at the bottom crust with a spatula - it should be caramel brown. Rest 5 min before slicing.'
+  },
+  roman: {
+    temps: [
+      { method:'Home oven + steel/stone',  tempF:500, tempC:260, timeMin:12, timeMax:16, unit:'minutes', note:'Preheat 1 hour. Roman dough is thicker so needs slightly longer than Neapolitan.' },
+      { method:'Home oven (sheet pan)',    tempF:480, tempC:249, timeMin:15, timeMax:20, unit:'minutes', note:'Oil the pan generously. Stretch dough edge to edge in the pan.' },
+      { method:'Deck oven (pro)',          tempF:520, tempC:271, timeMin:10, timeMax:14, unit:'minutes', note:'Classic Roman bakery method. High bottom heat is key to the crispy base.' }
+    ],
+    tip: 'Roman al teglio should have a crispy, oily bottom and a light, airy interior. The open crumb comes from high hydration and proper fermentation - not bake temperature.'
+  },
+  sicilian: {
+    temps: [
+      { method:'Home oven (sheet pan)',    tempF:450, tempC:232, timeMin:20, timeMax:28, unit:'minutes', note:'Well-oiled dark sheet pan. Lowest rack first 15 min, then middle rack.' },
+      { method:'Home oven + convection',   tempF:425, tempC:218, timeMin:18, timeMax:24, unit:'minutes', note:'Convection gives more even browning. Reduce temp 25F vs conventional.' },
+      { method:'Deck oven (pro)',          tempF:475, tempC:246, timeMin:15, timeMax:20, unit:'minutes', note:'Even top and bottom heat. Watch the corners - they brown fastest.' }
+    ],
+    tip: 'Press gently in the center - if it springs back, it is done. If it stays indented, bake 3-5 more minutes.'
+  },
+  detroit: {
+    temps: [
+      { method:'Home oven (Detroit pan)',  tempF:475, tempC:246, timeMin:15, timeMax:20, unit:'minutes', note:'Use a genuine blue steel Detroit pan or well-seasoned dark pan. Oil the sides heavily - this creates the frico cheese crust.' },
+      { method:'Home oven + convection',   tempF:450, tempC:232, timeMin:13, timeMax:18, unit:'minutes', note:'Convection helps caramelize cheese edges. Rotate pan at halfway point.' },
+      { method:'Deck oven (pro)',          tempF:500, tempC:260, timeMin:12, timeMax:16, unit:'minutes', note:'High heat accelerates the frico crust. Watch edges closely after 10 min.' }
+    ],
+    tip: 'Done when cheese edges are deeply caramelized and crispy (dark amber, not burnt). Bottom should release cleanly from the pan. Add red top sauce stripes immediately after pulling from oven.'
+  },
+  apizza: {
+    temps: [
+      { method:'Coal-fired oven (authentic)', tempF:900, tempC:482, timeMin:3, timeMax:5, unit:'minutes', note:'New Haven coal ovens run 800-1000F. The coal fire creates intense radiant heat and a unique mineral char that gas cannot replicate. Pepe and Sallys have been running the same coal ovens for decades.' },
+      { method:'Wood-fired oven',             tempF:850, tempC:454, timeMin:4, timeMax:6, unit:'minutes', note:'Closest home alternative to coal. Gets the blistering and char character. Rotate once at the 2 min mark.' },
+      { method:'Home oven + baking steel',    tempF:550, tempC:288, timeMin:6, timeMax:9, unit:'minutes', note:'Max oven temp with steel on top rack. Finish under broiler 90 sec for char.' },
+      { method:'Ooni / Roccbox (gas)',        tempF:850, tempC:454, timeMin:3, timeMax:5, unit:'minutes', note:'Best home option. Gas flame gives similar blistering. Rotate every 60-90 sec.' }
+    ],
+    tip: 'New Haven apizza gets a char that looks almost burnt to the uninitiated - that is correct. The blackened leopard spotting and slight char on the bottom is the signature. If it looks pale it is underdone.'
+  }
+};
+
+function setSelect(id, val) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  for (var i = 0; i < el.options.length; i++) {
+    if (parseFloat(el.options[i].value) === parseFloat(val)) {
+      el.selectedIndex = i;
+      return;
+    }
+  }
+}
+
+function onStyleChange() {
+  var sk = document.getElementById('style').value;
+  var s = STYLES[sk];
+  var oilField   = document.getElementById('oilField');
+  var sugarField = document.getElementById('sugarField');
+  var neapNote   = document.getElementById('neapNote');
+  if (s.hasOil) {
+    oilField.style.display   = 'block';
+    sugarField.style.display = s.hasSugar ? 'block' : 'block';
+    neapNote.style.display   = 'none';
+  } else {
+    oilField.style.display   = 'none';
+    sugarField.style.display = 'none';
+    neapNote.style.display   = 'block';
+    document.getElementById('oil').value   = '0';
+    document.getElementById('sugar').value = '0';
+  }
+  document.getElementById('hydration').value = s.hyd;
+  document.getElementById('hydLabel').textContent = s.hyd + '%';
+  document.getElementById('salt').value = s.salt;
+  document.getElementById('saltLabel').textContent = s.salt.toFixed(1) + '%';
+  setSelect('oil',   s.oil);
+  setSelect('sugar', s.sugar);
+  calc();
+}
+
+function onFlourChange() {
+  var ft = document.getElementById('flour_type').value;
+  var n  = document.getElementById('flourNote');
+  n.textContent   = FLOUR_NOTES[ft] || '';
+  n.style.display = 'block';
+  calc();
+}
+
+function onPrefChange() {
+  var pv   = document.getElementById('preferment').value;
+  var show = pv !== 'none';
+  document.getElementById('prefDetails').style.display = show ? 'block' : 'none';
+  if (show) document.getElementById('prefDesc').textContent = PREF_DESC[pv];
+  document.getElementById('prefTable').style.display = show ? 'block' : 'none';
+  calc();
+}
+
+function calc() {
+  var sk        = document.getElementById('style').value;
+  var s         = STYLES[sk];
+  var qty       = parseInt(document.getElementById('qty').value)       || 1;
+  var sizeIn    = parseFloat(document.getElementById('size').value)    || 12;
+  var thick     = document.getElementById('thick').value;
+  var hyd       = parseInt(document.getElementById('hydration').value) / 100;
+  var saltPct   = parseFloat(document.getElementById('salt').value)    / 100;
+  var oilPct    = s.hasOil   ? parseFloat(document.getElementById('oil').value)   / 100 : 0;
+  var sugarPct  = s.hasSugar ? parseFloat(document.getElementById('sugar').value) / 100 : 0;
+  var yeastType = document.getElementById('yeast').value;
+  var pref      = document.getElementById('preferment').value;
+  var y         = YEAST[yeastType];
+
+  var butterPct   = (s.butter   || 0) / 100;
+  var cornmealPct = (s.cornmeal || 0) / 100;
+
+  var sizeCm     = sizeIn * 2.54;
+  var ballWeight = Math.round(s.bw * Math.pow(sizeCm / 30, 2) * THICK[thick]);
+  var totalDough = ballWeight * qty;
+  var totalFlour = Math.round(totalDough / (1 + hyd + saltPct + oilPct + sugarPct + butterPct + cornmealPct));
+  var totalWater = Math.round(totalFlour * hyd);
+  var saltG      = parseFloat((totalFlour * saltPct).toFixed(1));
+  var oilG       = oilPct      > 0 ? parseFloat((totalFlour * oilPct).toFixed(1))      : 0;
+  var sugarG     = sugarPct    > 0 ? parseFloat((totalFlour * sugarPct).toFixed(1))    : 0;
+  var butterG    = butterPct   > 0 ? parseFloat((totalFlour * butterPct).toFixed(1))   : 0;
+  var cornmealG  = cornmealPct > 0 ? parseFloat((totalFlour * cornmealPct).toFixed(1)) : 0;
+  var yeastAmt   = yeastType === 'sourdough'
+    ? Math.round(totalFlour * y.rate / 100)
+    : parseFloat((totalFlour * y.rate / 100).toFixed(2));
+
+  var mEl = document.getElementById('metrics');
+  mEl.innerHTML =
+    '<div class="metric"><div class="val">' + qty + '</div><div class="lbl">pizzas</div></div>' +
+    '<div class="metric"><div class="val">' + sizeIn + '"</div><div class="lbl">diameter</div></div>' +
+    '<div class="metric"><div class="val">' + ballWeight + 'g</div><div class="lbl">per ball</div></div>' +
+    '<div class="metric"><div class="val">' + totalDough + 'g</div><div class="lbl">total dough</div></div>' +
+    '<div class="metric"><div class="val">' + Math.round(hyd*100) + '%</div><div class="lbl">hydration</div></div>';
+
+  var prefFlour=0, prefWater=0, prefYeast=0;
+  if (pref !== 'none') {
+    var ratio = pref === 'poolish' ? 0.5 : 0.4;
+    prefFlour = Math.round(totalFlour * ratio);
+    prefWater = pref === 'poolish' ? prefFlour : Math.round(prefFlour * 0.55);
+    prefYeast = parseFloat((prefFlour * (pref === 'poolish' ? 0.1 : 0.05) / 100).toFixed(3));
+    document.getElementById('prefTableTitle').textContent = pref === 'poolish' ? 'Poolish - mix night before' : 'Biga - mix night before';
+    document.getElementById('prefRecipeTable').innerHTML =
+      '<tr><th>Ingredient</th><th>Amount</th></tr>' +
+      '<tr><td>Flour</td><td>' + prefFlour + 'g</td></tr>' +
+      '<tr><td>Water</td><td>' + prefWater + 'g</td></tr>' +
+      '<tr><td>' + y.name + '</td><td>' + prefYeast + 'g</td></tr>';
+  }
+
+  var mainFlour  = pref !== 'none' ? totalFlour - prefFlour : totalFlour;
+  var mainWater  = pref !== 'none' ? totalWater - prefWater : totalWater;
+  var flourLabel = pref !== 'none' ? 'Flour (remaining)' : 'Flour';
+  var waterLabel = pref !== 'none' ? 'Water (remaining)' : 'Water';
+
+  var rows =
+    '<tr><th>Ingredient</th><th>Bakers %</th><th>Grams</th></tr>' +
+    '<tr><td>' + flourLabel + '</td><td>100%</td><td>' + mainFlour + 'g</td></tr>' +
+    '<tr><td>' + waterLabel + '</td><td>' + Math.round(hyd*100) + '%</td><td>' + mainWater + 'g</td></tr>' +
+    '<tr><td>Salt</td><td>' + (saltPct*100).toFixed(1) + '%</td><td>' + saltG + 'g</td></tr>';
+  if (oilG > 0)      rows += '<tr><td>Olive oil</td><td>'                  + (oilPct*100).toFixed(0)      + '%</td><td>' + oilG      + 'g</td></tr>';
+  if (sugarG > 0)    rows += '<tr><td>Sugar</td><td>'                      + (sugarPct*100).toFixed(0)    + '%</td><td>' + sugarG    + 'g</td></tr>';
+  if (butterG > 0)   rows += '<tr><td>Unsalted butter (softened)</td><td>' + (butterPct*100).toFixed(0)   + '%</td><td>' + butterG   + 'g</td></tr>';
+  if (cornmealG > 0) rows += '<tr><td>Fine cornmeal</td><td>'              + (cornmealPct*100).toFixed(0) + '%</td><td>' + cornmealG + 'g</td></tr>';
+  if (pref !== 'none') {
+    rows += '<tr><td>Add ' + pref + ' (from above)</td><td>-</td><td>' + (prefFlour + prefWater + prefYeast) + 'g</td></tr>';
+  } else {
+    rows += '<tr><td>' + y.name + '</td><td>' + y.rate + '%</td><td>' + yeastAmt + ' ' + y.unit + '</td></tr>';
+  }
+  rows += '<tr class="total"><td>Total dough</td><td></td><td>' + totalDough + 'g</td></tr>';
+  document.getElementById('recipeTable').innerHTML = rows;
+
+  window._cb = {
+    sk:sk, qty:qty, sizeIn:sizeIn, thick:thick, hyd:Math.round(hyd*100),
+    saltPct:(saltPct*100).toFixed(1), oilPct:(oilPct*100).toFixed(0),
+    sugarPct:(sugarPct*100).toFixed(0), yeastType:yeastType,
+    flourType:document.getElementById('flour_type').value,
+    pref:pref, totalFlour:totalFlour, totalWater:totalWater,
+    saltG:saltG, oilG:oilG, sugarG:sugarG, butterG:butterG, cornmealG:cornmealG,
+    yeastAmt:yeastAmt, totalDough:totalDough, ballWeight:ballWeight, yeastUnit:y.unit
+  };
+
+  calcFerm();
+  renderSauce(sk, qty);
+  renderCheese(sk, qty, sizeIn);
+  renderBake(sk);
+}
+
+function calcFerm() {
+  var wt = parseFloat(document.getElementById('waterTemp').value);
+  var at = parseFloat(document.getElementById('airTemp').value);
+  var ft = parseFloat(document.getElementById('flourTemp').value);
+  var el = document.getElementById('fermResult');
+  var fermType  = document.getElementById('ferm').value;
+  var yeastType = document.getElementById('yeast').value;
+
+  if (!wt && !at && !ft) {
+    el.innerHTML = '<div class="note">Enter water, air, and flour temps above for a fermentation estimate.</div>';
+    return;
+  }
+  var vals = [];
+  if (!isNaN(wt) && wt > 0) vals.push(wt);
+  if (!isNaN(at) && at > 0) vals.push(at);
+  if (!isNaN(ft) && ft > 0) vals.push(ft);
+  var ddt = parseFloat((vals.reduce(function(a,b){return a+b;},0) / vals.length).toFixed(1));
+  var minHr, maxHr, advice, noteClass;
+
+  if (fermType === 'same_day') {
+    if      (ddt >= 82) { minHr=1;  maxHr=2;  advice='Very warm - watch closely, may overproof fast.';            noteClass='note-danger';  }
+    else if (ddt >= 75) { minHr=2;  maxHr=3;  advice='Warm - good for a quick same-day rise.';                    noteClass='note-warn';    }
+    else if (ddt >= 68) { minHr=3;  maxHr=5;  advice='Ideal same-day temp. Dough should double in 3-5 hrs.';      noteClass='note-success'; }
+    else if (ddt >= 60) { minHr=5;  maxHr=8;  advice='Slightly cool - slow fermentation. Keep covered and warm.'; noteClass='note-warn';    }
+    else                { minHr=8;  maxHr=12; advice='Cold environment - very slow. Find a warmer spot.';         noteClass='note-danger';  }
+  } else if (fermType === 'overnight') {
+    if (ddt >= 72) { minHr=8;  maxHr=14; advice='Warm overnight - room temp 1 hr then refrigerate.'; noteClass='note-warn';    }
+    else           { minHr=12; maxHr=18; advice='Good for overnight. Room temp 1 hr then cold retard.'; noteClass='note-success'; }
+  } else {
+    minHr=24; maxHr=72;
+    if      (ddt >= 38 && ddt <= 45) { advice='Great fridge temp. Pull out 2 hrs before baking.';                noteClass='note-success'; }
+    else if (ddt > 45)               { advice='Fridge too warm. Aim for 38-42F.';                                noteClass='note-warn';    }
+    else                             { advice='Very cold - allow 3+ hrs at room temp after pulling from fridge.'; noteClass='note-warn';    }
+  }
+  if (yeastType === 'sourdough') {
+    minHr = Math.round(minHr * 1.4);
+    maxHr = Math.round(maxHr * 1.4);
+    advice += ' Sourdough needs extra time vs commercial yeast.';
+  }
+  var pct = Math.min(95, Math.max(5, Math.round(((ddt-55)/35)*100)));
+  var barColor = pct > 75 ? 'var(--bg-danger)' : pct > 50 ? 'var(--bg-warn)' : 'var(--bg-success)';
+  el.innerHTML =
+    '<div class="g4" style="margin-bottom:10px">' +
+      '<div class="metric"><div class="val">' + ddt + 'F</div><div class="lbl">avg dough temp</div></div>' +
+      '<div class="metric"><div class="val">' + minHr + '-' + maxHr + 'h</div><div class="lbl">est. ferment time</div></div>' +
+    '</div>' +
+    '<div style="font-size:12px;color:var(--text3);font-weight:500;margin-bottom:4px">Fermentation activity level</div>' +
+    '<div class="ferm-bar-wrap"><div class="ferm-bar" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:10px"><span>slow</span><span>fast</span></div>' +
+    '<div class="note ' + noteClass + '">' + advice + '</div>';
+}
+
+function renderSauce(sk, qty) {
+  var sauce = SAUCES[sk];
+  if (!sauce) return;
+  document.getElementById('sauceTabs').innerHTML = '<button class="sauce-tab active">' + sauce.name + '</button>';
+  var rows = '';
+  for (var i = 0; i < sauce.ingredients.length; i++) {
+    var item = sauce.ingredients[i];
+    var total = item.pp * qty;
+    var display;
+    if      (item.unit === 'g')      display = Math.round(total) + 'g';
+    else if (item.unit === 'tsp')    display = parseFloat(total.toFixed(1)) + ' tsp';
+    else if (item.unit === 'cloves') display = Math.ceil(total) + ' cloves';
+    else if (item.unit === 'leaves') display = Math.ceil(total) + ' leaves';
+    else                             display = parseFloat(total.toFixed(1)) + ' ' + item.unit;
+    rows += '<tr><td>' + item.name + '</td><td>' + display + '</td></tr>';
+  }
+  var steps = '';
+  for (var j = 0; j < sauce.steps.length; j++) {
+    steps += '<div class="sauce-step"><div class="sauce-num">' + (j+1) + '</div><div class="sauce-step-text">' + sauce.steps[j] + '</div></div>';
+  }
+  document.getElementById('sauceContent').innerHTML =
+    '<div class="sauce-card">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+        '<div style="width:12px;height:12px;border-radius:50%;background:' + sauce.color + ';flex-shrink:0"></div>' +
+        '<div class="sauce-title">' + sauce.name + '</div>' +
+      '</div>' +
+      '<div class="sauce-desc">' + sauce.desc + '</div>' +
+      '<div class="sec-title" style="margin-bottom:.5rem">Ingredients for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
+      '<table><tr><th>Ingredient</th><th>Amount</th></tr>' + rows + '</table>' +
+      '<div class="sec-title" style="margin:.85rem 0 .5rem">Method</div>' +
+      steps +
+      '<div class="note note-info" style="margin-top:10px"><strong>Pro tip:</strong> ' + sauce.tip + '</div>' +
+      '<hr style="border:none;border-top:.5px solid var(--border);margin:14px 0">' +
+      '<div class="sec-title" style="margin-bottom:.5rem">Tomato can calculator</div>' +
+      '<div class="sub" style="margin-bottom:10px">How many cans you need for ' + qty + ' pizza' + (qty>1?'s':'') + '.</div>' +
+      buildCanCalc(sauce, qty) +
+    '</div>';
+}
+
+function buildCanCalc(sauce, qty) {
+  var tomatoItem = null;
+  for (var i = 0; i < sauce.ingredients.length; i++) {
+    var nm = sauce.ingredients[i].name.toLowerCase();
+    if (sauce.ingredients[i].unit === 'g' && (nm.indexOf('tomato') !== -1 || nm.indexOf('san marzano') !== -1)) {
+      tomatoItem = sauce.ingredients[i];
+      break;
+    }
+  }
+  if (!tomatoItem) return '<div class="note">No tomato ingredient found.</div>';
+  var totalG = Math.round(tomatoItem.pp * qty);
+  var cans = [
+    { label:'8 oz can',   grams:227,  display:'8 oz' },
+    { label:'15 oz can',  grams:425,  display:'15 oz' },
+    { label:'No. 10 can', grams:2840, display:'#10 (6 lb 6 oz)' }
+  ];
+  var rows = '';
+  for (var i = 0; i < cans.length; i++) {
+    var c = cans[i];
+    var whole    = Math.ceil(totalG / c.grams);
+    var leftover = Math.round((whole * c.grams) - totalG);
+    var pct      = Math.min(100, Math.round((totalG / (whole * c.grams)) * 100));
+    var barColor = leftover === 0 ? 'var(--bg-success)' : leftover < c.grams * 0.25 ? 'var(--bg-info)' : 'var(--bg-warn)';
+    var leftNote = leftover === 0 ? 'exact' : leftover + 'g leftover';
+    rows +=
+      '<tr>' +
+        '<td style="font-weight:600">' + c.display + '</td>' +
+        '<td style="font-size:12px;color:var(--text3)">' + c.grams + 'g each</td>' +
+        '<td>' +
+          '<div style="font-weight:700;font-size:15px;color:var(--text)">' + whole + ' can' + (whole!==1?'s':'') + '</div>' +
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + leftNote + '</div>' +
+          '<div style="background:var(--bg3);border-radius:3px;height:5px;overflow:hidden;margin-top:4px;width:80px">' +
+            '<div style="height:5px;width:' + pct + '%;background:' + barColor + ';border-radius:3px"></div>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+  }
+  return '<table><tr><th>Can size</th><th>Per can</th><th>You need (' + totalG + 'g total)</th></tr>' + rows + '</table>' +
+    '<div class="note" style="margin-top:8px;font-size:12px">The bar shows how full each can is used. A nearly full bar means less waste.</div>';
+}
+
+function renderCheese(sk, qty, sizeIn) {
+  var ch = CHEESES[sk];
+  if (!ch) return;
+  var sizeRatio = Math.pow((sizeIn * 2.54) / (12 * 2.54), 2);
+  function scaleG(ppg) { return Math.round(ppg * qty * sizeRatio); }
+
+  var primaryG = scaleG(ch.primary.ppg);
+  var totalG   = primaryG;
+  for (var i = 0; i < ch.secondary.length; i++) totalG += scaleG(ch.secondary[i].ppg);
+
+  var primaryHtml =
+    '<div style="background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;border:.5px solid var(--border);margin-bottom:10px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+        '<div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Primary cheese</div>' +
+          '<div style="font-size:15px;font-weight:600;color:var(--text)">' + ch.primary.name + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
+          '<div style="font-size:22px;font-weight:700;color:var(--text)">' + primaryG + 'g</div>' +
+          '<div style="font-size:11px;color:var(--text3)">for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + ch.primary.note + '</div>' +
+    '</div>';
+
+  var secHtml = '';
+  for (var j = 0; j < ch.secondary.length; j++) {
+    var sec  = ch.secondary[j];
+    var secG = scaleG(sec.ppg);
+    secHtml +=
+      '<div style="background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;border:.5px solid var(--border);margin-bottom:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">' +
+          '<div>' +
+            '<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Additional / optional</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text)">' + sec.name + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
+            '<div style="font-size:20px;font-weight:700;color:var(--text)">' + secG + 'g</div>' +
+            '<div style="font-size:11px;color:var(--text3)">for ' + qty + ' pizza' + (qty>1?'s':'') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + sec.note + '</div>' +
+      '</div>';
+  }
+
+  document.getElementById('cheeseContent').innerHTML =
+    '<div class="note" style="margin-bottom:12px">' + ch.note + '</div>' +
+    '<div style="background:var(--bg-info);border-radius:var(--radius);padding:.65rem 1rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text-info)">Total cheese (all types)</div>' +
+      '<div style="font-size:18px;font-weight:700;color:var(--text-info)">' + totalG + 'g</div>' +
+    '</div>' +
+    primaryHtml +
+    '<div class="sec-title" style="margin:.5rem 0">Additional cheeses</div>' +
+    secHtml +
+    '<div class="note note-info" style="margin-top:4px"><strong>Pro tip:</strong> ' + ch.tip + '</div>';
+}
+
+function renderBake(sk) {
+  var b  = BAKE[sk];
+  var el = document.getElementById('bakeCard');
+  if (!b || !el) return;
+
+  var primary     = b.temps[0];
+  var primaryTime = primary.timeMin + '-' + primary.timeMax + ' ' + primary.unit;
+
+  var methodRows = '';
+  for (var i = 0; i < b.temps.length; i++) {
+    var t       = b.temps[i];
+    var timeStr = t.timeMin + '-' + t.timeMax + ' ' + t.unit;
+    var isFirst = i === 0;
+    methodRows +=
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:.5px solid var(--border);' + (i===b.temps.length-1?'border-bottom:none':'') + '">' +
+        '<div style="flex:1;padding-right:12px">' +
+          '<div style="font-size:13px;font-weight:' + (isFirst?'600':'500') + ';color:var(--text);margin-bottom:2px">' +
+            t.method + (isFirst ? ' <span style="font-size:10px;background:var(--bg-success);color:var(--text-success);border-radius:20px;padding:1px 7px;font-weight:700">recommended</span>' : '') +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--text3);line-height:1.4">' + t.note + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          '<div style="font-size:12px;font-weight:700;color:var(--text-danger);white-space:nowrap">' + t.tempF + 'F / ' + t.tempC + 'C</div>' +
+          '<div style="font-size:11px;font-weight:600;color:var(--text-info);white-space:nowrap">' + timeStr + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  el.innerHTML =
+    '<div style="background:var(--bg2);border:.5px solid var(--border);border-radius:var(--radius);overflow:hidden">' +
+      '<div style="background:var(--bg-danger);padding:8px 12px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--text-danger);text-transform:uppercase;letter-spacing:.06em">Baking guide</div>' +
+        '<div style="display:flex;gap:8px">' +
+          '<div style="background:rgba(0,0,0,.12);color:var(--text-danger);border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700">' + primary.tempF + 'F / ' + primary.tempC + 'C</div>' +
+          '<div style="background:rgba(0,0,0,.12);color:var(--text-danger);border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700">' + primaryTime + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="padding:4px 12px 8px">' + methodRows + '</div>' +
+      '<div style="padding:6px 12px 10px;border-top:.5px solid var(--border);font-size:12px;color:var(--text2);line-height:1.5"><strong>Tip:</strong> ' + b.tip + '</div>' +
+    '</div>';
+}
+
+function saveBatch() {
+  var b   = window._cb || {};
+  var log = JSON.parse(localStorage.getItem('pizzaLogV4') || '[]');
+  log.unshift({
+    id:Date.now(),
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
+    sk:b.sk, qty:b.qty, sizeIn:b.sizeIn, hyd:b.hyd,
+    saltPct:b.saltPct, oilPct:b.oilPct, sugarPct:b.sugarPct,
+    totalFlour:b.totalFlour, totalDough:b.totalDough, ballWeight:b.ballWeight,
+    flourType:b.flourType, pref:b.pref, yeastType:b.yeastType,
+    waterTemp: document.getElementById('waterTemp').value  || '-',
+    airTemp:   document.getElementById('airTemp').value    || '-',
+    flourTemp: document.getElementById('flourTemp').value  || '-',
+    flourBrand:document.getElementById('flourBrand').value || '',
+    notes:     document.getElementById('notes').value      || ''
+  });
+  localStorage.setItem('pizzaLogV4', JSON.stringify(log));
+  renderLog();
+  showTab('batch');
+  document.getElementById('notes').value      = '';
+  document.getElementById('flourBrand').value = '';
+}
+
+function renderLog() {
+  var log = JSON.parse(localStorage.getItem('pizzaLogV4') || '[]');
+  var el  = document.getElementById('logList');
+  if (!log.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-pizza-off"></i>No batches saved yet.</div>';
+    return;
+  }
+  var FNAME = {'00':'Tipo 00',bread:'Bread flour',ap:'All-purpose',whole_wheat:'Whole wheat',semolina:'Semolina blend'};
+  var SNAME = {neapolitan:'Neapolitan',ny:'New York',chicago_deep:'Chicago Deep Dish',roman:'Roman',sicilian:'Sicilian',detroit:'Detroit',apizza:'New Haven Apizza'};
+  var out = '';
+  for (var i = 0; i < log.length; i++) {
+    var e = log[i];
+    out +=
+      '<div class="log-entry">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
+          '<span style="font-weight:600;color:var(--text)">' + (SNAME[e.sk]||e.sk||'') + ' x' + e.qty + ' @ ' + e.sizeIn + '"</span>' +
+          '<span style="font-size:12px;color:var(--text3)">' + e.date + ' ' + e.time + '</span>' +
+        '</div>' +
+        '<div class="log-meta">' +
+          '<span class="tag">' + e.totalFlour + 'g flour</span>' +
+          '<span class="tag">' + (FNAME[e.flourType]||e.flourType||'') + '</span>' +
+          '<span class="tag">' + e.hyd + '% hyd</span>' +
+          (e.pref && e.pref!=='none' ? '<span class="tag">' + e.pref + '</span>' : '') +
+          (parseFloat(e.sugarPct)>0  ? '<span class="tag">' + e.sugarPct + '% sugar</span>' : '') +
+          '<span class="tag">water ' + e.waterTemp + 'F</span>' +
+          '<span class="tag">air '   + e.airTemp   + 'F</span>' +
+          '<span class="tag">flour ' + e.flourTemp + 'F</span>' +
+          (e.flourBrand ? '<span class="tag">' + e.flourBrand + '</span>' : '') +
+          (e.notes      ? '<span class="tag">' + e.notes      + '</span>' : '') +
+        '</div>' +
+      '</div>';
+  }
+  el.innerHTML = out;
+}
+
+function clearLog() {
+  if (confirm('Clear all batch history? This cannot be undone.')) {
+    localStorage.removeItem('pizzaLogV4');
+    renderLog();
+  }
+}
+
+function showTab(t) {
+  document.getElementById('tab-calc').style.display  = t==='calc'  ? 'block' : 'none';
+  document.getElementById('tab-batch').style.display = t==='batch' ? 'block' : 'none';
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', (t==='calc'&&i===0)||(t==='batch'&&i===1));
+  }
+  if (t==='batch') renderLog();
+}
+
+onFlourChange();
+calc();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW registration failed', e); });
+  });
+}
+</script>
+</body>
+</html>
