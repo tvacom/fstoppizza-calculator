@@ -252,6 +252,12 @@ tr.total td{font-weight:700}
   </div>
 
   <div class="sec">
+    <div class="sec-title">Build summary &mdash; per pizza &amp; batch</div>
+    <div class="sub">Dough, sauce, and cheese side by side: what one pizza needs, and the total for the whole batch.</div>
+    <div id="summaryContent"></div>
+  </div>
+
+  <div class="sec">
     <div class="sec-title">Pizza sauce recipe</div>
     <div class="sub">Auto-selected for your pizza style. Scales with number of pizzas.</div>
     <div class="sauce-tab-row" id="sauceTabs"></div>
@@ -497,7 +503,7 @@ var CHEESES = {
     primary: { name:'Fresh Fior di Latte (mozzarella)', ppg:80, note:'Slice 5mm thick, tear by hand. Drain on paper towel 30 min before use to remove excess moisture.' },
     secondary: [
       { name:'Parmigiano Reggiano (finish)', ppg:10, note:'Finely grated, added after baking.' },
-      { name:'Fresh Buffalo Mozzarella (upgrade)', ppg:80, note:'Higher moisture - drain well. Use instead of Fior di Latte for premium pies.' }
+      { name:'Fresh Buffalo Mozzarella (upgrade)', ppg:80, alt:true, note:'Higher moisture - drain well. Use instead of Fior di Latte for premium pies.' }
     ],
     tip: 'Never use shredded low-moisture mozzarella on Neapolitan. The high heat (800-900F) requires fresh cheese that melts quickly without oiling out.'
   },
@@ -506,7 +512,7 @@ var CHEESES = {
     primary: { name:'Low-moisture whole-milk mozzarella', ppg:140, note:'Shred fresh from the block. Pre-shredded has anti-caking agents that prevent proper melt.' },
     secondary: [
       { name:'Pecorino Romano (finish)', ppg:15, note:'Finely grated over the top before or after baking.' },
-      { name:'Provolone (blend option)', ppg:40, note:'Mix 25% provolone with 75% mozzarella for extra sharpness and better browning.' }
+      { name:'Provolone (blend option)', ppg:40, alt:true, note:'Mix 25% provolone with 75% mozzarella for extra sharpness and better browning.' }
     ],
     tip: 'Shred your own whole-milk mozzarella from a block. Let it sit uncovered in the fridge 1 hour before use to dry slightly - this prevents a watery pizza.'
   },
@@ -524,7 +530,7 @@ var CHEESES = {
     primary: { name:'Fior di Latte (low-moisture)', ppg:90, note:'Torn or shredded. Add in the last 3-4 minutes of baking to prevent rubbery texture.' },
     secondary: [
       { name:'Pecorino Romano', ppg:15, note:'Grated finish after baking.' },
-      { name:'Burrata (white pizza)', ppg:80, note:'Torn and placed immediately after baking for a creamy finish.' }
+      { name:'Burrata (white pizza)', ppg:80, alt:true, note:'Torn and placed immediately after baking for a creamy finish.' }
     ],
     tip: 'Add cheese late in the bake or after. The long tray bake at lower temps will overcook cheese added at the start.'
   },
@@ -533,7 +539,7 @@ var CHEESES = {
     primary: { name:'Low-moisture whole-milk mozzarella', ppg:150, note:'Shredded. Cover the dough edge to edge - Sicilian is generously topped.' },
     secondary: [
       { name:'Aged Pecorino or Romano', ppg:25, note:'Grated and mixed with the mozzarella before applying.' },
-      { name:'Caciocavallo (authentic)', ppg:60, note:'Sliced or shredded. Traditional Sicilian cheese with a mild, buttery tang.' }
+      { name:'Caciocavallo (authentic)', ppg:60, alt:true, note:'Sliced or shredded. Traditional Sicilian cheese with a mild, buttery tang.' }
     ],
     tip: 'For the classic red top look, apply a second layer of thin sauce over the cheese before baking.'
   },
@@ -541,8 +547,8 @@ var CHEESES = {
     note: 'Detroit pizza is defined by its cheese. Brick cheese is pushed all the way to the edges - the caramelized frico crust is the signature feature.',
     primary: { name:'Wisconsin brick cheese', ppg:170, note:'Shredded or diced. Push to the very edges and corners of the pan. The cheese touching the pan caramelizes into the iconic crispy frico crust.' },
     secondary: [
-      { name:'Low-moisture mozzarella (blend)', ppg:60, note:'Mix 60% brick / 40% mozzarella if brick cheese is hard to find.' },
-      { name:'Muenster (substitute)', ppg:170, note:'Best substitute for brick cheese. Same melt profile and mild flavor.' }
+      { name:'Low-moisture mozzarella (blend)', ppg:60, alt:true, note:'Mix 60% brick / 40% mozzarella if brick cheese is hard to find.' },
+      { name:'Muenster (substitute)', ppg:170, alt:true, note:'Best substitute for brick cheese. Same melt profile and mild flavor.' }
     ],
     tip: 'No brick cheese? Use Muenster or mild cheddar/mozzarella mix. Push cheese fully to pan edges. The frico crust only comes from cheese directly touching the oiled pan.'
   },
@@ -551,7 +557,7 @@ var CHEESES = {
     primary: { name:'Low-moisture mozzarella (shredded)', ppg:90, note:'Applied in sparse, uneven clumps - not wall to wall. The exposed sauce and dough chars directly under the coal fire. Gaps are intentional.' },
     secondary: [
       { name:'Pecorino Romano (grated)', ppg:20, note:'The essential New Haven cheese. Applied over sauce before baking on every pie, with or without mozzarella.' },
-      { name:'Fresh clams - chopped (white clam pie)', ppg:60, note:'For the iconic white clam pie: no sauce, no mozzarella. Clams, olive oil, garlic, oregano, and Pecorino only. Use fresh littleneck clams when possible.' }
+      { name:'Fresh clams - chopped (white clam pie)', ppg:60, alt:true, note:'For the iconic white clam pie: no sauce, no mozzarella. Clams, olive oil, garlic, oregano, and Pecorino only. Use fresh littleneck clams when possible.' }
     ],
     tip: 'For an authentic tomato pie (Frank Pepe style): sauce and grated Pecorino Romano only. No mozzarella. The coal fire chars the exposed sauce into something extraordinary.'
   }
@@ -761,7 +767,31 @@ function calc() {
   calcFerm();
   renderSauce(sk, qty);
   renderCheese(sk, qty, sizeIn);
+  renderSummary(qty, ballWeight, totalDough);
   renderBake(sk);
+}
+
+function renderSummary(qty, ballWeight, totalDough) {
+  var s = window._sauce  || { per:0, total:0 };
+  var c = window._cheese || { per:0, total:0 };
+  var multi  = qty > 1;
+  var perPie = ballWeight + s.per + c.per;
+  var totAll = totalDough + s.total + c.total;
+  function row(label, per, total, isTotal) {
+    return '<tr' + (isTotal ? ' class="total"' : '') + '><td>' + label + '</td>' +
+           '<td>' + per + 'g</td>' + (multi ? '<td>' + total + 'g</td>' : '') + '</tr>';
+  }
+  document.getElementById('summaryContent').innerHTML =
+    '<table>' +
+      '<tr><th>Component</th><th>Per pizza</th>' + (multi ? '<th>Total (&times;' + qty + ')</th>' : '') + '</tr>' +
+      row('Dough ball', ballWeight, totalDough, false) +
+      row('Sauce', s.per, s.total, false) +
+      row('Cheese (combined)', c.per, c.total, false) +
+      row('Topped pizza', perPie, totAll, true) +
+    '</table>' +
+    '<div class="note note-info" style="margin-top:8px">Each pizza &approx; <strong>' + ballWeight + 'g dough</strong> + <strong>' + s.per + 'g sauce</strong> + <strong>' + c.per + 'g cheese</strong>' +
+    (multi ? '. Whole batch of ' + qty + ' &approx; <strong>' + totAll + 'g</strong>.' : '.') +
+    ' Cheese uses the combined recommended amount (alternatives excluded); toppings not included.</div>';
 }
 
 function calcFerm() {
@@ -829,13 +859,16 @@ function renderSauce(sk, qty) {
     else                        return parseFloat(v.toFixed(1)) + ' ' + unit;
   }
   var rows = '';
+  var saucePerG = 0;
   for (var i = 0; i < sauce.ingredients.length; i++) {
     var item = sauce.ingredients[i];
+    if (item.unit === 'g') saucePerG += item.pp;
     var perDisp   = fmtAmt(item.pp, item.unit);
     var totalDisp = fmtAmt(item.pp * qty, item.unit);
     rows += '<tr><td>' + item.name + '</td><td>' + perDisp + '</td>' +
             (multi ? '<td>' + totalDisp + '</td>' : '') + '</tr>';
   }
+  window._sauce = { per: Math.round(saucePerG), total: Math.round(saucePerG * qty) };
   var steps = '';
   for (var j = 0; j < sauce.steps.length; j++) {
     steps += '<div class="sauce-step"><div class="sauce-num">' + (j+1) + '</div><div class="sauce-step-text">' + sauce.steps[j] + '</div></div>';
@@ -912,7 +945,14 @@ function renderCheese(sk, qty, sizeIn) {
   var primaryPer = perG(ch.primary.ppg);
   var totalG     = primaryG;
   var totalPer   = primaryPer;
-  for (var i = 0; i < ch.secondary.length; i++) { totalG += scaleG(ch.secondary[i].ppg); totalPer += perG(ch.secondary[i].ppg); }
+  // Only "additional" cheeses add to the combined total. Items flagged alt are
+  // substitutes/alternatives (used instead of the primary), so they are excluded.
+  for (var i = 0; i < ch.secondary.length; i++) {
+    if (ch.secondary[i].alt) continue;
+    totalG   += scaleG(ch.secondary[i].ppg);
+    totalPer += perG(ch.secondary[i].ppg);
+  }
+  window._cheese = { per: totalPer, total: totalG };
 
   var primaryHtml =
     '<div style="background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;border:.5px solid var(--border);margin-bottom:10px">' +
@@ -935,11 +975,12 @@ function renderCheese(sk, qty, sizeIn) {
     var sec    = ch.secondary[j];
     var secG   = scaleG(sec.ppg);
     var secPer = perG(sec.ppg);
+    var secKind = sec.alt ? 'Alternative / substitute' : 'Additional &mdash; adds on top';
     secHtml +=
       '<div style="background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;border:.5px solid var(--border);margin-bottom:8px">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">' +
           '<div>' +
-            '<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Additional / optional</div>' +
+            '<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">' + secKind + '</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--text)">' + sec.name + '</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
@@ -949,6 +990,7 @@ function renderCheese(sk, qty, sizeIn) {
           '</div>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + sec.note + '</div>' +
+        (sec.alt ? '<div style="font-size:11px;color:var(--text3);margin-top:6px;font-style:italic">Used instead of the primary &mdash; not added to the combined total above.</div>' : '') +
       '</div>';
   }
 
