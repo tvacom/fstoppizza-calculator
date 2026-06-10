@@ -833,10 +833,8 @@ function renderSauce(sk, qty) {
   for (var i = 0; i < sauce.ingredients.length; i++) {
     var item = sauce.ingredients[i];
     if (item.unit === 'g') saucePerG += item.pp;
-    var perDisp   = fmtAmt(item.pp, item.unit);
     var totalDisp = fmtAmt(item.pp * qty, item.unit);
-    rows += '<tr><td>' + item.name + '</td><td>' + perDisp + '</td>' +
-            (multi ? '<td>' + totalDisp + '</td>' : '') + '</tr>';
+    rows += '<tr><td>' + item.name + '</td><td>' + totalDisp + '</td></tr>';
   }
   var saucePer   = Math.round(saucePerG);
   var sauceTotal = Math.round(saucePerG * qty);
@@ -858,8 +856,8 @@ function renderSauce(sk, qty) {
           (multi ? '<div style="font-size:11px;color:var(--text-info);opacity:.85;margin-top:1px">' + sauceTotal + 'g total for ' + qty + ' pizzas</div>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="sec-title" style="margin-bottom:.5rem">Ingredients' + (multi ? ' (per pizza & total for ' + qty + ')' : ' per pizza') + '</div>' +
-      '<table><tr><th>Ingredient</th><th>Per pizza</th>' + (multi ? '<th>Total</th>' : '') + '</tr>' + rows + '</table>' +
+      '<div class="sec-title" style="margin-bottom:.5rem">Ingredients' + (multi ? ' (total for ' + qty + ' pizzas)' : '') + '</div>' +
+      '<table><tr><th>Ingredient</th><th>' + (multi ? 'Total' : 'Amount') + '</th></tr>' + rows + '</table>' +
       '<div class="sec-title" style="margin:.85rem 0 .5rem">Method</div>' +
       steps +
       '<div class="note note-info" style="margin-top:10px"><strong>Pro tip:</strong> ' + sauce.tip + '</div>' +
