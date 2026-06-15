@@ -115,6 +115,7 @@ tr.total td{font-weight:700}
         <label>Flour type</label>
         <select id="flour_type" onchange="onFlourChange()">
           <option value="00">Tipo 00 (fine milled)</option>
+          <option value="high_gluten">High-gluten (~14% protein)</option>
           <option value="bread">Bread flour (~13% protein)</option>
           <option value="ap">All-purpose (~11.5%)</option>
           <option value="whole_wheat">Whole wheat</option>
@@ -294,13 +295,13 @@ tr.total td{font-weight:700}
 </div>
 <script>
 var STYLES = {
-  neapolitan:  { bw:250, hyd:62, salt:2.5, oil:0, sugar:0, butter:0, cornmeal:0, hasOil:false, hasSugar:false },
-  ny:          { bw:300, hyd:63, salt:2.5, oil:3, sugar:3, butter:0, cornmeal:0, hasOil:true,  hasSugar:true  },
-  chicago_deep:{ bw:550, hyd:58, salt:2.0, oil:2, sugar:2, butter:6, cornmeal:5, hasOil:true,  hasSugar:true  },
-  roman:       { bw:550, hyd:75, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
-  sicilian:    { bw:500, hyd:70, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
-  detroit:     { bw:450, hyd:70, salt:2.5, oil:5, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false },
-  apizza:      { bw:280, hyd:65, salt:2.5, oil:2, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false }
+  neapolitan:  { bw:250, hyd:62, salt:2.5, oil:0, sugar:0, butter:0, cornmeal:0, hasOil:false, hasSugar:false, flour:'00' },
+  ny:          { bw:300, hyd:63, salt:2.5, oil:3, sugar:3, butter:0, cornmeal:0, hasOil:true,  hasSugar:true,  flour:'high_gluten' },
+  chicago_deep:{ bw:550, hyd:58, salt:2.0, oil:2, sugar:2, butter:6, cornmeal:5, hasOil:true,  hasSugar:true,  flour:'ap' },
+  roman:       { bw:550, hyd:75, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false, flour:'bread' },
+  sicilian:    { bw:500, hyd:70, salt:2.5, oil:3, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false, flour:'bread' },
+  detroit:     { bw:450, hyd:70, salt:2.5, oil:5, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false, flour:'bread' },
+  apizza:      { bw:280, hyd:65, salt:2.5, oil:2, sugar:0, butter:0, cornmeal:0, hasOil:true,  hasSugar:false, flour:'high_gluten' }
 };
 
 var THICK = { thin:0.85, medium:1.0, thick:1.2 };
@@ -314,6 +315,7 @@ var YEAST = {
 
 var FLOUR_NOTES = {
   '00':        'Best for Neapolitan - very fine, low protein, silky dough. Rest 20 min after mixing.',
+  high_gluten: 'Very strong flour (~14% protein) for maximum chew and a crisp, foldable crust. The classic choice for NY slices and New Haven apizza. King Arthur Sir Lancelot or General Mills All Trumps are the benchmarks.',
   bread:       'High protein builds strong gluten. Great for NY-style and New Haven apizza. King Arthur Bread Flour (13%+) is ideal.',
   ap:          'Versatile all-rounder. Good for most styles.',
   whole_wheat: 'Nutty flavor, denser crumb. Increase hydration +5-10%. Best blended with bread flour.',
@@ -653,14 +655,37 @@ function onStyleChange() {
   document.getElementById('saltLabel').textContent = s.salt.toFixed(1) + '%';
   setSelect('oil',   s.oil);
   setSelect('sugar', s.sugar);
+  if (s.flour) document.getElementById('flour_type').value = s.flour;
+  updateFlourNote();
   calc();
 }
 
-function onFlourChange() {
-  var ft = document.getElementById('flour_type').value;
-  var n  = document.getElementById('flourNote');
-  n.textContent   = FLOUR_NOTES[ft] || '';
+function flourLabelFor(val) {
+  var opts = document.getElementById('flour_type').options;
+  for (var i = 0; i < opts.length; i++) if (opts[i].value === val) return opts[i].text;
+  return val;
+}
+
+function updateFlourNote() {
+  var sk        = document.getElementById('style').value;
+  var styleSel  = document.getElementById('style');
+  var styleName = styleSel.options[styleSel.selectedIndex].text;
+  var ft        = document.getElementById('flour_type').value;
+  var rec       = STYLES[sk] && STYLES[sk].flour;
+  var n         = document.getElementById('flourNote');
+  var base      = FLOUR_NOTES[ft] || '';
+  if (ft === rec) {
+    n.className   = 'note note-success';
+    n.textContent = base + ' ✓ Recommended for ' + styleName + '.';
+  } else {
+    n.className   = 'note note-info';
+    n.textContent = base + ' Tip: ' + flourLabelFor(rec) + ' is the suggested flour for ' + styleName + '.';
+  }
   n.style.display = 'block';
+}
+
+function onFlourChange() {
+  updateFlourNote();
   calc();
 }
 

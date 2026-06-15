@@ -1,5 +1,5 @@
 /* FStopPizza Calculator service worker */
-const CACHE = 'fstoppizza-v5';
+const CACHE = 'fstoppizza-v6';
 const ASSETS = [
   './',
   './index.html',
